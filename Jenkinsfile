@@ -1,23 +1,37 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'maven-latest'
+        jdk 'jdk21'
+    }
+
     stages {
-        stage('Clone') {
+
+        stage('Checkout') {
             steps {
-                echo "Cloning repo..."
+                git branch: 'main',
+                    url: 'https://github.com/mani031298/gitpractise.git',
+                    credentialsId: 'github-token'
             }
         }
 
         stage('Build') {
             steps {
-                echo "Building project..."
+                sh 'mvn clean install'
             }
         }
 
-        stage('Deploy') {
+        stage('Archive Artifact') {
             steps {
-                echo "Deploying..."
+                archiveArtifacts artifacts: 'target/*.war', fingerprint: true
             }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline Finished"
         }
     }
 }
